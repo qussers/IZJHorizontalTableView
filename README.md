@@ -7,3 +7,4 @@
 使用方法：
 引入文件 IZJHorizontalTableView.h , IZJHorizontalTableView.m,按照一般UITableView创建即可。根据对应协议实现方法，完成不同样式布局。
 
+https://www.jianshu.com/p/5032a2ebc40e
