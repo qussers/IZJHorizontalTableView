@@ -40,7 +40,6 @@
 
 @interface IZJHorizontalTableView : UITableView
 
-
 @property (nonatomic, weak) id<IZJHorizontalTableViewDataSource> dataSourceHorizontal;
 
 @property (nonatomic, weak) id<IZJHorizontalTableViewDelegate> delegateHorizontal;

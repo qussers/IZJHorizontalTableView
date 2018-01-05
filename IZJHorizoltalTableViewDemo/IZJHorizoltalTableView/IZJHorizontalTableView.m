@@ -16,7 +16,6 @@
 @end
 
 static char currentScrollViewKey;
-
 static CGFloat const TableViewPlainHeaderAndFooterHeight = 28.0;
 static CGFloat const TableViewGroupHeaderAndFooterHeight = 17.5;
 
@@ -52,7 +51,26 @@ static CGFloat const TableViewGroupHeaderAndFooterHeight = 17.5;
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
-    return [gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]] && [otherGestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]];
+    
+    if ([gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]] && [otherGestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) {
+        UIPanGestureRecognizer *pan1 = (UIPanGestureRecognizer *)gestureRecognizer;
+        UIPanGestureRecognizer *pan2 = (UIPanGestureRecognizer *)otherGestureRecognizer;
+        CGPoint p1 =  [pan1 velocityInView:self];
+        CGPoint p2 = [pan2 velocityInView:self];
+        if (ABS(p1.x)== 0.f || ABS(p2.x)== 0.f) {
+            return YES;
+        }
+        if (ABS(p1.y)== 0.f || ABS(p2.y)== 0.f) {
+            return NO;
+        }
+        if ((ABS(p1.x) / ABS(p1.y) > 1.5) || (ABS(p2.x) / ABS(p2.y) > 1.5)) {
+            return NO;
+        }
+        return YES;
+    }else{
+        return NO;
+    }
+    
 }
 
 - (void)setUp
@@ -163,7 +181,6 @@ static CGFloat const TableViewGroupHeaderAndFooterHeight = 17.5;
         NSLayoutConstraint *bottomContentViewConstraint = [NSLayoutConstraint constraintWithItem:self.contentView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:v attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0];
 
         NSLayoutConstraint *topContentViewConstraint = [NSLayoutConstraint constraintWithItem:self.contentView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:segment attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0];
-//
         [v addConstraint:leftContentViewConstraint];
         [v addConstraint:rightContentViewConstraint];
         [v addConstraint:topContentViewConstraint];
