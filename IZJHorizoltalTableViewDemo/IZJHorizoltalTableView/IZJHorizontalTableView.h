@@ -33,7 +33,7 @@
 - (CGFloat)heightForSegmentViewInHorizontalTablesView:(IZJHorizontalTableView *)horizontalTablesView;
 
 //水平切换偏移
-- (CGFloat)horizontalscrollViewDidScroll:(UIScrollView *)scrollView;
+- (void)horizontalscrollViewDidScroll:(UIScrollView *)scrollView;
 
 
 @end

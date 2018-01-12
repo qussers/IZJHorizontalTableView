@@ -16,8 +16,6 @@
 @end
 
 static char currentScrollViewKey;
-static CGFloat const TableViewPlainHeaderAndFooterHeight = 28.0;
-static CGFloat const TableViewGroupHeaderAndFooterHeight = 17.5;
 
 @implementation IZJHorizontalTableView
 {
@@ -88,53 +86,7 @@ static CGFloat const TableViewGroupHeaderAndFooterHeight = 17.5;
 
 - (void)reloadData
 {
-    if (self.verticalViewTotalHeight == CGFLOAT_MAX) {
-        self.verticalViewTotalHeight = 0;
-        UIView *tableViewHeader = self.tableHeaderView;
-        if (tableViewHeader) {
-            self.verticalViewTotalHeight += tableViewHeader.bounds.size.height;
-        }else if (self.style == UITableViewStyleGrouped){
-            self.tableHeaderView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0, CGFLOAT_MIN)];
-        }
-        
-        NSInteger section = 1;
-        if ([self.dataSource respondsToSelector:@selector(numberOfSectionsInTableView:)]) {
-           section = [self.dataSource numberOfSectionsInTableView:self];
-        }
-        if ([self.delegate respondsToSelector:@selector(tableView:viewForHeaderInSection:)]) {
-            for (int i = 0; i < section; i++) {
-                CGFloat sectionHeight = self.style == UITableViewStylePlain ? TableViewPlainHeaderAndFooterHeight : TableViewGroupHeaderAndFooterHeight;
-                if ([self.delegate respondsToSelector:@selector(tableView:heightForHeaderInSection:)]) {
-                    sectionHeight =  [self.delegate tableView:self heightForHeaderInSection:i];
-                }
-                self.verticalViewTotalHeight += sectionHeight;
-            }
-        }else if (self.style == UITableViewStyleGrouped){
-            if (section > 1) {
-                self.verticalViewTotalHeight += TableViewGroupHeaderAndFooterHeight * (section - 1);
-            }
-        }
-        if ([self.delegate respondsToSelector:@selector(tableView:viewForFooterInSection:)]) {
-            for (int i = 0; i < section; i++) {
-                 CGFloat sectionHeight = self.style == UITableViewStylePlain ? TableViewPlainHeaderAndFooterHeight : TableViewGroupHeaderAndFooterHeight;
-                if ([self.delegate respondsToSelector:@selector(tableView:heightForFooterInSection:)]) {
-                    sectionHeight =  [self.delegate tableView:self heightForFooterInSection:i];
-                }
-                self.verticalViewTotalHeight += sectionHeight;
-            }
-        }else if (self.style == UITableViewStyleGrouped){
-                self.verticalViewTotalHeight += TableViewGroupHeaderAndFooterHeight * section;
-        }
-        if ([self.delegate respondsToSelector:@selector(tableView:heightForRowAtIndexPath:)]) {
-            for (int i = 0; i < section; i++) {
-                NSInteger row = [self.dataSource tableView:self numberOfRowsInSection:i];
-                for (int i = 0; i < row; i++) {
-                    CGFloat rowHeight = [self.delegate tableView:self heightForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:section]];
-                    self.verticalViewTotalHeight += rowHeight;
-                }
-            }
-        }
-    }
+     [super   reloadData];
     _itemCount = [self.dataSourceHorizontal numberOfItemsInHorizontalTablesView:self];
     if (_itemCount < 1) {
         return;
@@ -150,6 +102,9 @@ static CGFloat const TableViewGroupHeaderAndFooterHeight = 17.5;
 }
 
 
+
+
+
 - (void)reloadSegmentData
 {
     [self layoutIfNeeded];
@@ -163,7 +118,6 @@ static CGFloat const TableViewGroupHeaderAndFooterHeight = 17.5;
         if ([self.delegateHorizontal respondsToSelector:@selector(heightForSegmentViewInHorizontalTablesView:)]) {
             segmentHeight = [self.delegateHorizontal heightForSegmentViewInHorizontalTablesView:self];
         }
-        
         segment.translatesAutoresizingMaskIntoConstraints = NO;
         NSLayoutConstraint *leftSegmentConstraint = [NSLayoutConstraint constraintWithItem:segment attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:v attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0];
         NSLayoutConstraint *rightSegmentConstraint = [NSLayoutConstraint constraintWithItem:segment attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:v attribute:NSLayoutAttributeRight multiplier:1.0 constant:0];
@@ -179,7 +133,7 @@ static CGFloat const TableViewGroupHeaderAndFooterHeight = 17.5;
         NSLayoutConstraint *leftContentViewConstraint = [NSLayoutConstraint constraintWithItem:self.contentView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:v attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0];
         NSLayoutConstraint *rightContentViewConstraint = [NSLayoutConstraint constraintWithItem:self.contentView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:v attribute:NSLayoutAttributeRight multiplier:1.0 constant:0];
         NSLayoutConstraint *bottomContentViewConstraint = [NSLayoutConstraint constraintWithItem:self.contentView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:v attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0];
-
+        
         NSLayoutConstraint *topContentViewConstraint = [NSLayoutConstraint constraintWithItem:self.contentView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:segment attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0];
         [v addConstraint:leftContentViewConstraint];
         [v addConstraint:rightContentViewConstraint];
@@ -198,11 +152,9 @@ static CGFloat const TableViewGroupHeaderAndFooterHeight = 17.5;
         [v addConstraint:rightContentViewConstraint];
         [v addConstraint:topContentViewConstraint];
         [v addConstraint:bottomContentViewConstraint];
-        
-
     }
     self.tableFooterView = v;
-    [super   reloadData];
+
 }
 
 - (void)reloadHorizontalData
@@ -237,18 +189,18 @@ static CGFloat const TableViewGroupHeaderAndFooterHeight = 17.5;
             goto end;
         }
     }else{
-        end:{
-            [cell.contentView addSubview:scrollView];
-            scrollView.translatesAutoresizingMaskIntoConstraints = NO;
-            NSLayoutConstraint *leftConstraint = [NSLayoutConstraint constraintWithItem:scrollView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:cell.contentView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0];
-            NSLayoutConstraint *rightConstraint = [NSLayoutConstraint constraintWithItem:scrollView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:cell.contentView attribute:NSLayoutAttributeRight multiplier:1.0 constant:0];
-            NSLayoutConstraint *topConstraint = [NSLayoutConstraint constraintWithItem:scrollView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:cell.contentView attribute:NSLayoutAttributeTop multiplier:1.0 constant:0];
-            NSLayoutConstraint *bottomConstraint = [NSLayoutConstraint constraintWithItem:scrollView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:cell.contentView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0];
-            [cell.contentView addConstraint:leftConstraint];
-            [cell.contentView addConstraint:rightConstraint];
-            [cell.contentView addConstraint:topConstraint];
-            [cell.contentView addConstraint:bottomConstraint];
-        }
+    end:{
+        [cell.contentView addSubview:scrollView];
+        scrollView.translatesAutoresizingMaskIntoConstraints = NO;
+        NSLayoutConstraint *leftConstraint = [NSLayoutConstraint constraintWithItem:scrollView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:cell.contentView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0];
+        NSLayoutConstraint *rightConstraint = [NSLayoutConstraint constraintWithItem:scrollView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:cell.contentView attribute:NSLayoutAttributeRight multiplier:1.0 constant:0];
+        NSLayoutConstraint *topConstraint = [NSLayoutConstraint constraintWithItem:scrollView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:cell.contentView attribute:NSLayoutAttributeTop multiplier:1.0 constant:0];
+        NSLayoutConstraint *bottomConstraint = [NSLayoutConstraint constraintWithItem:scrollView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:cell.contentView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0];
+        [cell.contentView addConstraint:leftConstraint];
+        [cell.contentView addConstraint:rightConstraint];
+        [cell.contentView addConstraint:topConstraint];
+        [cell.contentView addConstraint:bottomConstraint];
+    }
     }
     dispatch_async(dispatch_get_main_queue(), ^{
         scrollView.contentOffset = CGPointZero;
@@ -304,7 +256,7 @@ static CGFloat const TableViewGroupHeaderAndFooterHeight = 17.5;
     CGPoint tableOffset = [[change objectForKey:@"new"] CGPointValue];
     if (context == &currentScrollViewKey) {
         _currentContentOffsetY = tableOffset.y;
-        if (self.contentOffset.y < self.verticalViewTotalHeight) {
+        if ((self.verticalViewTotalHeight - self.contentOffset.y) > 0.00001) {
             if (_currentContentOffsetY != 0) {
                 _currentScrollView.contentOffset = CGPointZero;
             }
@@ -320,10 +272,21 @@ static CGFloat const TableViewGroupHeaderAndFooterHeight = 17.5;
 {
     [super setContentOffset:contentOffset];
     if (_currentScrollView && _currentScrollView.contentOffset.y > 0) {
-        if (contentOffset.y != self.verticalViewTotalHeight) {
+        if (ABS(contentOffset.y - self.verticalViewTotalHeight) > 0.00001) {
             self.contentOffset = CGPointMake(0, self.verticalViewTotalHeight);
         }
     }
+}
+
+- (void)setContentSize:(CGSize)contentSize
+{
+    [super setContentSize:contentSize];
+    
+    CGFloat segheight = 0;
+    if (self.delegateHorizontal && [self.delegateHorizontal respondsToSelector:@selector(heightForSegmentViewInHorizontalTablesView:)]) {
+      segheight =  [self.delegateHorizontal heightForSegmentViewInHorizontalTablesView:self];
+    }
+    self.verticalViewTotalHeight = contentSize.height - self.contentView.bounds.size.height - segheight;
 }
 
 #pragma mark - getter
@@ -350,7 +313,7 @@ static CGFloat const TableViewGroupHeaderAndFooterHeight = 17.5;
         _contentView.dataSource = self;
         _contentView.delegate   = self;
         _contentView.pagingEnabled = YES;
-         _contentView.alwaysBounceVertical = NO;
+        _contentView.alwaysBounceVertical = NO;
         _contentView.alwaysBounceHorizontal = NO;
         _contentView.showsVerticalScrollIndicator = NO;
         _contentView.showsHorizontalScrollIndicator = NO;
